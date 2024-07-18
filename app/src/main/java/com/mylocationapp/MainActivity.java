@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
@@ -33,9 +34,7 @@ public class MainActivity extends AppCompatActivity implements GPSCallback, OnMa
     private Marker marker;
     private LatLng location;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private boolean permissionDenied = false;
     private GPSThread GPS;
-//    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,21 +49,37 @@ public class MainActivity extends AppCompatActivity implements GPSCallback, OnMa
 
         this.GPS = new GPSThread(this,this);
 
-        binding.button.setOnClickListener(new View.OnClickListener() {
+        binding.startLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!GPS.isRunning()){
+                    GPS.startGPS();
+                }
+            }
+        });
+
+        binding.stopLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GPS.stopGPS();
+            }
+        });
+
+        binding.addRegion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GPS.start();
+
             }
         });
 
     }
 
-    public void GPSCallback() {
-
-    }
-
     private void updateMarker() {
-        this.marker.setPosition(this.location);
+        if (this.marker != null) {
+            this.marker.setPosition(this.location);
+        } else {
+            this.marker = this.googleMap.addMarker(new MarkerOptions().position(this.location).title("LOC"));
+        }
         this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(this.location, 12));
     }
 
@@ -72,9 +87,6 @@ public class MainActivity extends AppCompatActivity implements GPSCallback, OnMa
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.enableMyLocation();
-//        this.location = new LatLng(10, 10);
-//        marker = this.googleMap.addMarker(new MarkerOptions().position(this.location).title("1"));
-//        this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(this.location, 10));
     }
 
     @SuppressLint("MissingPermission")
@@ -93,21 +105,12 @@ public class MainActivity extends AppCompatActivity implements GPSCallback, OnMa
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            return;
-        }
+    public void onLocationUpdate(double latitude, double longitude) {
 
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION) || PermissionUtils.isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            // Enable the my location layer if the permission has been granted.
-            enableMyLocation();
-        } else {
-            // Permission was denied. Display an error message
-            // [START_EXCLUDE]
-            // Display the missing permission error dialog when the fragments resume.
-            permissionDenied = true;
-            // [END_EXCLUDE]
-        }
+        this.location = new LatLng(latitude, longitude);
+        binding.latitude.setText(String.valueOf(latitude));
+        binding.longitude.setText(String.valueOf(longitude));
+        updateMarker();
     }
+
 }
