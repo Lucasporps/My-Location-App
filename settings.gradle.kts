@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "My Location App"
 include(":app")
- 
+include(":location-features")
