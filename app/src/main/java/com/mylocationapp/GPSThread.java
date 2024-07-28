@@ -19,10 +19,10 @@ import com.google.android.gms.location.Priority;
 
 public class GPSThread extends Thread {
 
-    private final LocationRequest mLocationRequest;
     private final Context context;
     private final GPSCallback callback;
     private final FusedLocationProviderClient fusedLocationClient;
+    private final LocationRequest mLocationRequest;
     private boolean state = false;
 
     public GPSThread(Context context, GPSCallback callback) {
@@ -47,7 +47,7 @@ public class GPSThread extends Thread {
             return;
         }
 
-        Log.i("GPSThread", "EU AQUI"); // Log para acompanhar se a thread iniciou
+        Log.i("GPSThread", "Passou da verificação"); // Log para acompanhar se a thread iniciou
 
         // Callback para usar no fused location client, vai notificar o callback da main activity atualizando as informações
         LocationCallback locationCallback = new LocationCallback() {
@@ -69,6 +69,7 @@ public class GPSThread extends Thread {
         void onLocationUpdate(double latitude, double longitude);
     }
 
+    // Iniciar localização em tempo real
     public void startGPS (){
         this.state = true;
         if(this.getState() == State.NEW) {
@@ -76,11 +77,13 @@ public class GPSThread extends Thread {
         }
     }
 
+    // Parar localização em tempo real
     public void stopGPS (){
         this.state = false;
         this.interrupt();
     }
 
+    // Verificação de estado da thread
     public boolean isRunning(){
         return this.state;
     }

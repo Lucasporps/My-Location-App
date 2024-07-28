@@ -3,6 +3,7 @@
     <string name="longitude">Longitude</string>
     <string name="latitude">Latitude</string>
     <string name="addRegiao">Adicionar Região</string>
+    <string name="addBD">Gravar BD</string>
     <string name="startLoc">\></string>
     <string name="stopLoc">||</string>
     <string name="map">Maps API</string>
